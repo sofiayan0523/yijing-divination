@@ -145,8 +145,13 @@
       '<span class="gua-name" style="font-size:28px">' + esc(r.main.fullName) + "</span>" +
       '<span class="jx ' + mjc + '">' + esc(r.main.jixiong) + "</span></div>";
 
+    var sharedNote = "";
+    if (r._shared && r._epoch) {
+      var dt = new Date(r._epoch);
+      sharedNote = '　·　<span style="color:var(--jade)">此為 ' + esc(dt.toLocaleString("zh-TW", { hour12: false })) + " 所卜之卦</span>";
+    }
     html += '<div class="q-echo">問：<b>' + esc(question) + "</b>　·　字：<b>" + esc(r.char) +
-      "</b>（" + r.strokes + " 畫）　·　地：<b>" + esc(r._placeLabel) + "</b>　·　" + esc(r.shichenName) + "</div>";
+      "</b>（" + r.strokes + " 畫）　·　地：<b>" + esc(r._placeLabel) + "</b>　·　" + esc(r.shichenName) + sharedNote + "</div>";
 
     // 卦象 pair
     html += '<div class="gua-pair">' +
@@ -175,10 +180,11 @@
       '<div class="reason"><b>運算理由（可自行檢驗）</b>\n' + esc(reasonText(r)) + "</div>" +
       "</div>";
 
-    // 大師深入解讀
+    // 大師深入解讀 + 分享
     html += '<div class="master-cta">' +
       '<button id="masterBtn" class="cast-btn small"><span>請大師深入解讀</span></button>' +
-      '<span style="font-size:12px;color:var(--muted)">針對你的問題，依倪海廈・王思迅之理客製分析（需設定 API 金鑰）</span></div>';
+      '<button id="shareBtn" type="button" class="ghost-btn"><span>複製分享連結</span></button>' +
+      '<span style="font-size:12px;color:var(--muted)">深入解讀依倪海廈・王思迅之理客製（需設定 API 金鑰）；分享連結會重現同一卦</span></div>';
     html += '<div id="masterOut"></div>';
 
     // 完整資訊
@@ -189,25 +195,50 @@
     box.innerHTML = html;
     box.hidden = false;
     $("#masterBtn").addEventListener("click", runMaster);
+    var sb = $("#shareBtn");
+    if (sb) sb.addEventListener("click", function () { copyShare(sb); });
     box.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  /* ---------- 表單提交 ---------- */
+  /* ---------- 起卦（表單與分享連結共用） ---------- */
+  function doCast(q, ch, place, epoch, shared) {
+    var box = $("#result");
+    if (!q) { box.hidden = false; box.innerHTML = '<div class="msg">請先輸入「問題」——問題要明確、主體清晰。</div>'; return false; }
+    if (!ch) { box.hidden = false; box.innerHTML = '<div class="msg">請輸入一個「字」——靜心默念問題後，腦中浮現的第一個字。</div>'; return false; }
+    var tzInfo = resolveTimeZone(place);
+    var castDate = epoch ? new Date(epoch) : new Date();
+    var r = E.divine({ char: ch, timeZone: tzInfo.tz, now: castDate });
+    if (r.error) { box.hidden = false; box.innerHTML = '<div class="msg">' + esc(r.error) + "</div>"; return false; }
+    r._placeLabel = tzInfo.label;
+    r._epoch = castDate.getTime();
+    r._place = place || "";
+    r._shared = !!shared;
+    render(r, q);
+    return true;
+  }
+
   $("#castForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    var q = $("#question").value.trim();
-    var ch = $("#char").value.trim();
-    var place = $("#place").value.trim();
-    var box = $("#result");
-    if (!q) { box.hidden = false; box.innerHTML = '<div class="msg">請先輸入「問題」——問題要明確、主體清晰。</div>'; return; }
-    if (!ch) { box.hidden = false; box.innerHTML = '<div class="msg">請輸入一個「字」——靜心默念問題後，腦中浮現的第一個字。</div>'; return; }
-
-    var tzInfo = resolveTimeZone(place);
-    var r = E.divine({ char: ch, timeZone: tzInfo.tz });
-    if (r.error) { box.hidden = false; box.innerHTML = '<div class="msg">' + esc(r.error) + "</div>"; return; }
-    r._placeLabel = tzInfo.label;
-    render(r, q);
+    doCast($("#question").value.trim(), $("#char").value.trim(), $("#place").value.trim(), null, false);
   });
+
+  /* ---------- 分享連結 ---------- */
+  function shareURL() {
+    if (!lastResult) return location.href;
+    var p = new URLSearchParams();
+    p.set("q", lastResult.question);
+    p.set("c", lastResult.r.char);
+    if (lastResult.r._place) p.set("p", lastResult.r._place);
+    p.set("t", lastResult.r._epoch);
+    return location.origin + location.pathname + "?" + p.toString();
+  }
+  function copyShare(btn) {
+    var url = shareURL();
+    var done = function () { var o = btn.querySelector("span"); var t = o.textContent; o.textContent = "已複製連結 ✓"; setTimeout(function () { o.textContent = t; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, function () { window.prompt("複製此連結：", url); });
+    } else { window.prompt("複製此連結：", url); }
+  }
 
   /* ---------- 大師深入解讀（瀏覽器端呼叫 LLM） ---------- */
   function getSettings() {
@@ -352,4 +383,21 @@
     var info = resolveTimeZone(this.value);
     $("#placeHint").textContent = this.value.trim() ? info.label + "　時辰：" + E.SHICHEN[E.shichenIndex(E.hourInTimeZone(info.tz)) - 1] + "時" : "未填以台北時間計時辰";
   });
+
+  /* ---------- 由分享連結載入並重現同一卦 ---------- */
+  (function initFromQuery() {
+    var p = new URLSearchParams(location.search);
+    var c = p.get("c");
+    if (!c) return;
+    var q = p.get("q") || "";
+    var place = p.get("p") || "";
+    var t = p.get("t");
+    $("#question").value = q;
+    $("#char").value = c;
+    $("#place").value = place;
+    var ev = new Event("input");
+    $("#char").dispatchEvent(ev);
+    if (place) $("#place").dispatchEvent(ev);
+    doCast(q, c, place, t ? parseInt(t, 10) : null, true);
+  })();
 })();
