@@ -1,0 +1,37 @@
+name: Morning Brief
+
+on:
+  schedule:
+    # 08:00 Taipei (UTC+8) = 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # 允許手動觸發（測試用）
+
+jobs:
+  morning-brief:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Omni Morning Brief
+        env:
+          OMNI_API_KEY: ${{ secrets.OMNI_API_KEY }}
+        run: |
+          set +e
+
+          echo "Sending request to Omni API..."
+          curl -v \
+            -X POST \
+            -H "X-API-Key: ${OMNI_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"content": "morning brief"}' \
+            "https://omnitunnel.numbersprotocol.io/api/external/conversations/e3e0b03e-62c0-4adb-891d-f21402cdc3d7/run" \
+            -o /tmp/response.json \
+            --write-out "\nHTTP_STATUS=%{http_code}\nCURL_EXIT=%{exitcode}\n"
+
+          CURL_CODE=$?
+          echo "curl exit code: $CURL_CODE"
+          echo "response body:"
+          cat /tmp/response.json 2>/dev/null || echo "(empty)"
+
+          if [ "$CURL_CODE" -ne 0 ]; then
+            echo "ERROR: curl failed with code $CURL_CODE"
+            exit 1
+          fi

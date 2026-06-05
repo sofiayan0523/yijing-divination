@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>易 · 易經卜卦</title>
+<meta name="description" content="輸入問題、選一個字、定一個地點，依康熙筆畫與時辰起卦，得主卦與之卦，參倪海廈與王思迅之解，協助你梳理問題、找出內心的答案。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="seal" aria-hidden="true">易</div>
+
+<header class="masthead">
+  <div class="brand">
+    <span class="brand-glyph">䷁</span>
+    <div class="brand-text">
+      <h1>易</h1>
+      <p class="brand-sub">易經卜卦 · 梳理問題，照見本心</p>
+    </div>
+  </div>
+  <button id="howtoBtn" class="ghost-btn" type="button">如何卜卦？</button>
+</header>
+
+<main>
+  <!-- 如何使用（依 prompt 原文） -->
+  <section id="howto" class="howto" hidden>
+    <div class="howto-inner">
+      <p>Hi 我是<strong>易</strong>，協助你進行易經卜卦的分析。我會基於倪海廈與王思迅兩位近代易學講師的理論，合併周易的註解提供分析。我並不是對事情進行預測，而是透過易經的理論基礎，協助你梳理問題、找出內心真正的答案。</p>
+      <h3>如何進行卜卦</h3>
+      <ol>
+        <li>請設想好你的問題，問題應該要明確，且主體清晰</li>
+        <li>請在安靜的環境中從 1 數到 20</li>
+        <li>然後在心裡默念設定好的問題</li>
+        <li>接下來會有一個字在你腦中浮出，請把這個字告訴我</li>
+      </ol>
+      <p class="howto-eg">範例 —— 問：明天的客戶是紡織業小開，我希望與他們合作 POC，該如何準備談判？　字：青</p>
+    </div>
+  </section>
+
+  <!-- 卜卦表單 -->
+  <section class="cast">
+    <form id="castForm" autocomplete="off">
+      <label class="field field-q">
+        <span class="field-label">問 <em>必要</em></span>
+        <textarea id="question" rows="2" placeholder="把心中的事說清楚，主體要明確。例：我要跟客戶談判，運勢為何？" required></textarea>
+      </label>
+
+      <div class="field-row">
+        <label class="field field-char">
+          <span class="field-label">字 <em>必要</em></span>
+          <input id="char" type="text" maxlength="2" placeholder="浮現的一個字" required />
+          <span class="field-hint" id="charHint">靜心默念後，腦中浮現的第一個字</span>
+        </label>
+
+        <label class="field field-place">
+          <span class="field-label">地 <em>選填</em></span>
+          <input id="place" type="text" list="cityList" placeholder="台北" />
+          <datalist id="cityList"></datalist>
+          <span class="field-hint" id="placeHint">未填以台北時間計時辰</span>
+        </label>
+      </div>
+
+      <button type="submit" class="cast-btn"><span>起　卦</span></button>
+    </form>
+  </section>
+
+  <!-- 結果 -->
+  <section id="result" class="result" hidden></section>
+</main>
+
+<footer class="foot">
+  <p>卦象與筆畫為離線計算（康熙筆畫採 Unicode Unihan kRSUnicode + 214 部首），卦辭釋義整理自周易及倪海廈、王思迅之說。本工具用於梳理思緒，非命運預測。</p>
+  <button id="settingsBtn" class="link-btn" type="button">深入解讀設定</button>
+</footer>
+
+<!-- 大師深入解讀設定彈窗 -->
+<div id="settingsModal" class="modal" hidden>
+  <div class="modal-card">
+    <button class="modal-close" data-close="settingsModal" aria-label="關閉">×</button>
+    <h2>大師深入解讀</h2>
+    <p class="modal-lead">「深入解讀」會把已算出的卦象連同卦辭，交給大型語言模型，依倪海廈與王思迅之理針對你的問題給出客製分析。金鑰只存在你的瀏覽器（localStorage），不會上傳到任何伺服器。</p>
+    <label class="field">
+      <span class="field-label">服務商</span>
+      <select id="provider">
+        <option value="openai">OpenAI（GPT）</option>
+        <option value="gemini">Google Gemini</option>
+      </select>
+    </label>
+    <label class="field">
+      <span class="field-label">模型</span>
+      <input id="model" type="text" placeholder="gpt-4o-mini / gemini-2.0-flash" />
+    </label>
+    <label class="field">
+      <span class="field-label">API 金鑰</span>
+      <input id="apiKey" type="password" placeholder="sk-... 或 Gemini key" />
+    </label>
+    <div class="modal-actions">
+      <button id="saveSettings" class="cast-btn small"><span>儲存</span></button>
+      <button id="clearSettings" class="ghost-btn" type="button">清除金鑰</button>
+    </div>
+    <p class="modal-note" id="settingsNote"></p>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/engine.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

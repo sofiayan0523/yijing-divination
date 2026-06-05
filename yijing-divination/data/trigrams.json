@@ -1,0 +1,98 @@
+[
+ {
+  "key": "qian",
+  "name": "乾",
+  "symbol": "☰",
+  "nature": "天",
+  "num": 1,
+  "lines": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "key": "dui",
+  "name": "兌",
+  "symbol": "☱",
+  "nature": "澤",
+  "num": 2,
+  "lines": [
+   1,
+   1,
+   0
+  ]
+ },
+ {
+  "key": "li",
+  "name": "離",
+  "symbol": "☲",
+  "nature": "火",
+  "num": 3,
+  "lines": [
+   1,
+   0,
+   1
+  ]
+ },
+ {
+  "key": "zhen",
+  "name": "震",
+  "symbol": "☳",
+  "nature": "雷",
+  "num": 4,
+  "lines": [
+   1,
+   0,
+   0
+  ]
+ },
+ {
+  "key": "xun",
+  "name": "巽",
+  "symbol": "☴",
+  "nature": "風",
+  "num": 5,
+  "lines": [
+   0,
+   1,
+   1
+  ]
+ },
+ {
+  "key": "kan",
+  "name": "坎",
+  "symbol": "☵",
+  "nature": "水",
+  "num": 6,
+  "lines": [
+   0,
+   1,
+   0
+  ]
+ },
+ {
+  "key": "gen",
+  "name": "艮",
+  "symbol": "☶",
+  "nature": "山",
+  "num": 7,
+  "lines": [
+   0,
+   0,
+   1
+  ]
+ },
+ {
+  "key": "kun",
+  "name": "坤",
+  "symbol": "☷",
+  "nature": "地",
+  "num": 8,
+  "lines": [
+   0,
+   0,
+   0
+  ]
+ }
+]

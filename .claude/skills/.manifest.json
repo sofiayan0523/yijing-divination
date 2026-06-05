@@ -1,0 +1,36 @@
+{
+  "system": [
+    "skill-creator",
+    "ai-bot-traffic",
+    "aeo-assessment",
+    "z-sync",
+    "z-writing-rules",
+    "z-ticket-check",
+    "z-agent-ticket-creation",
+    "z-report-status",
+    "z-check-comment",
+    "omni-help",
+    "ms-office-suite",
+    "google-workspace",
+    "google-ads",
+    "meta-ads",
+    "agent-readiness-generator",
+    "harness-plan",
+    "harness-execution",
+    "harness-dev",
+    "short-video",
+    "frontend-design",
+    "webapp-testing",
+    "pdf",
+    "doc-coauthoring",
+    "theme-factory",
+    "internal-comms",
+    "image-generation"
+  ],
+  "corporate": [],
+  "space": [
+    "gov-projects-search",
+    "morning-brief"
+  ],
+  "conversation": []
+}

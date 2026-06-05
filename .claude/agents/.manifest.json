@@ -1,0 +1,11 @@
+{
+  "system": [
+    "code-searcher",
+    "data-collector",
+    "log-reader",
+    "subagent-creator",
+    "test-runner"
+  ],
+  "space": [],
+  "conversation": []
+}
