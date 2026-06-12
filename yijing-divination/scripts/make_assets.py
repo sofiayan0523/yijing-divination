@@ -101,44 +101,59 @@ def make_og():
     print("OK og.png")
 
 
+# 初版 icon 配色（用戶偏好：卦象爻紋而非「易」字）
+ICON_BG = (196, 69, 43)      # 初版朱砂 #c4452b
+ICON_FG = (245, 236, 217)    # 初版奶油 #f5ecd9
+
+
+def _draw_yao_bars(d, x0, y0, w, h):
+    """三爻紋（陽/陰/陽 = 離卦上下顛倒之意象，沿用初版 favicon 幾何）。
+    在 (x0,y0)-(x0+w,y0+h) 區域內畫 實/斷/實 三條圓頭爻。"""
+    bh = h * 0.19            # 爻條厚度
+    gap = (h - 3 * bh) / 2   # 爻距
+    r = bh / 2
+    pat = [1, 0, 1]
+    for i, p in enumerate(pat):
+        y = y0 + i * (bh + gap)
+        if p == 1:
+            d.rounded_rectangle([x0, y, x0 + w, y + bh], radius=r, fill=ICON_FG)
+        else:
+            seg = w * 0.39
+            d.rounded_rectangle([x0, y, x0 + seg, y + bh], radius=r, fill=ICON_FG)
+            d.rounded_rectangle([x0 + w - seg, y, x0 + w, y + bh], radius=r, fill=ICON_FG)
+
+
 def make_favicon_png(size):
-    """朱砂方印 icon：方角，紙色「易」。"""
+    """初版卦象 icon：圓角朱底＋奶油爻紋。"""
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, size - 1, size - 1], fill=CINNABAR + (255,))
-    inset = max(1, round(size * 0.09))
-    d.rectangle([inset, inset, size - 1 - inset, size - 1 - inset],
-                outline=PAPER + (255,), width=max(1, size // 32))
-    f = ImageFont.truetype(KAI, int(size * 0.58))
-    d.text((size / 2, size / 2 + size * 0.02), "易", font=f, fill=PAPER + (255,), anchor="mm")
+    d.rounded_rectangle([0, 0, size - 1, size - 1], radius=max(3, size * 6 // 32), fill=ICON_BG + (255,))
+    pad = size * 0.22
+    _draw_yao_bars(d, pad, pad, size - 2 * pad, size - 2 * pad)
     img.save(os.path.join(OUT, "icon-%d.png" % size), "PNG")
     print("OK icon-%d.png" % size)
 
 
 def make_maskable_png(size):
-    """maskable icon：全出血朱砂底，內容縮在中央安全區（內 60%），
-    Android 圓形/圓角遮罩裁切後印章仍完整。"""
-    img = Image.new("RGBA", (size, size), CINNABAR + (255,))
+    """maskable icon：全出血朱底，爻紋縮在中央安全區，
+    Android 圓形/圓角遮罩裁切後爻紋仍完整。"""
+    img = Image.new("RGBA", (size, size), ICON_BG + (255,))
     d = ImageDraw.Draw(img)
-    box = size * 0.30  # 內容外框：中央 40%~... 內框畫在 30% 內縮處
-    d.rectangle([box, box, size - box, size - box],
-                outline=PAPER + (255,), width=max(2, size // 96))
-    f = ImageFont.truetype(KAI, int(size * 0.30))
-    d.text((size / 2, size / 2 + size * 0.01), "易", font=f, fill=PAPER + (255,), anchor="mm")
+    pad = size * 0.32
+    _draw_yao_bars(d, pad, pad, size - 2 * pad, size - 2 * pad)
     img.save(os.path.join(OUT, "icon-maskable-%d.png" % size), "PNG")
     print("OK icon-maskable-%d.png" % size)
 
 
 def make_favicon_svg():
-    """朱砂方印（方角）＋ 三爻幾何紋（字級太小時比文字可辨）。"""
+    """初版 favicon：圓角朱底＋三爻紋。"""
     svg = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#b13a23"/>
-  <rect x="2.5" y="2.5" width="27" height="27" fill="none" stroke="#efe4cb" stroke-width="1.2"/>
-  <g fill="#efe4cb">
-    <rect x="8" y="9"  width="16" height="3"/>
-    <rect x="8" y="14.5" width="6.4" height="3"/>
-    <rect x="17.6" y="14.5" width="6.4" height="3"/>
-    <rect x="8" y="20" width="16" height="3"/>
+  <rect width="32" height="32" rx="6" fill="#c4452b"/>
+  <g fill="#f5ecd9">
+    <rect x="7" y="8"  width="18" height="3.4" rx="1.7"/>
+    <rect x="7" y="14.3" width="7"  height="3.4" rx="1.7"/>
+    <rect x="18" y="14.3" width="7"  height="3.4" rx="1.7"/>
+    <rect x="7" y="20.6" width="18" height="3.4" rx="1.7"/>
   </g>
 </svg>
 '''
