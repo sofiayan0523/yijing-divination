@@ -5,3 +5,32 @@ __pycache__/
 *.pyc
 .DS_Store
 .omni/
+
+# 內部產品/資安規劃文件 — 不推到公開 repo（見對話說明，可改放私有庫）
+feature.md
+
+# 雲端認證快取 — 含 credentials.db / access_tokens.db，絕不可推上 repo
+.gcloud/
+
+# 工作區內的其他 repo（各自有自己的 git，與本專案無關）
+personal-auto/
+sofia-s-blog/
+
+# 私有部署設定 — 家人/團隊 email 名單不推到公開 repo（保留 allowlist.example.json）
+functions/allowlist.json
+
+# Firebase 後端與部署/維運設定 — 不推到公開 repo。
+# 部署直接讀本機檔案（不依賴 git）；含服務帳號 email 等內部維運資訊。
+# 若日後想開源整個後端，移除以下幾行即可。
+/functions/
+/firebase.json
+/.firebaserc
+/firestore.rules
+/FIREBASE_SETUP.md
+
+# 維運腳本（含專案/Sheet ID 等內部資訊，不推公開 repo）
+/scripts/
+
+# Firebase 本地快取
+.firebase/
+firebase-debug.log

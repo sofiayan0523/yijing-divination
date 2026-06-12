@@ -1,0 +1,8 @@
+# 私有部署設定 — 含真實 Firebase 專案 config，只留本機供 Firebase Hosting 部署。
+# 公開 GitHub Pages 不需要此檔（缺檔即維持 BYOK 公開模式）。
+firebase-config.js
+
+# Firebase 本地快取
+.firebase/
+firebase-debug.log
+node_modules/
